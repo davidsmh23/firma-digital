@@ -398,3 +398,30 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Carpetas de configuración del proyecto IntelliJ IDEA
+.idea/
+
+# Archivos y carpetas generados automáticamente por IntelliJ IDEA
+*.iml
+*.ipr
+*.iws
+
+# Archivos de caché
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/shelf
+
+# Configuración específica del usuario
+.idea/**/usage.statistics.xml
+.idea/**/vcs.xml
+.idea/**/deployment.xml
+.idea/**/portSettings.xml
+
+# Archivos de configuración de ejecución
+.idea/**/runConfigurations
+
+# Archivos generados por el sistema operativo
+.DS_Store
+Thumbs.db
