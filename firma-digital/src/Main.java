@@ -7,8 +7,15 @@ import java.util.Base64;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        // Ruta del archivo original
-        String rutaArchivo = "archivosFirmados/archivo.txt";
+        if (args.length < 3) {
+            System.out.println("Uso: java -jar Firmador.jar <rutaArchivoEntrada> <rutaArchivoSalida> <directorioClaves>");
+            System.exit(1);
+        }
+
+        // Obtener los argumentos de línea de comandos
+        String rutaArchivoEntrada = args[0];
+        String rutaArchivoSalida = args[1];
+        String directorioClaves = args[2];
 
         // Generar un par de claves (clave pública y privada)
         KeyPairGenerator generadorLlave = KeyPairGenerator.getInstance("RSA");
@@ -17,29 +24,25 @@ public class Main {
         PrivateKey clavePrivada = clavePar.getPrivate();
         PublicKey clavePublica = clavePar.getPublic();
 
-        // Leer el contenido original del archivo
-        byte[] original = ArchivoUtil.readFile(rutaArchivo);
+        // Guardar las claves en archivos
+        ArchivoUtil.guardarClave(directorioClaves + "/clave_privada.pem", clavePrivada.getEncoded());
+        ArchivoUtil.guardarClave(directorioClaves + "/clave_publica.pem", clavePublica.getEncoded());
+
+        System.out.println("Claves generadas y guardadas en: " + directorioClaves);
+
+        // Leer el contenido del archivo a firmar
+        byte[] original = ArchivoUtil.readFile(rutaArchivoEntrada);
 
         // Generar la firma digital
         byte[] firmaDigital = FirmaUtil.generateSignature(original, clavePrivada);
 
-        // Convertir la firma a Base64 para incrustarla en el archivo
+        // Convertir la firma a Base64
         String encodedFirma = Base64.getEncoder().encodeToString(firmaDigital);
 
-        // Incrustar la firma al final del archivo sin modificar el contenido original
-        String rutaArchivoFirmado = "archivosFirmados/archivo_firmado.txt";
-        ArchivoUtil.embedSignature(rutaArchivo, rutaArchivoFirmado, encodedFirma);
+        // Incrustar la firma en el archivo de salida
+        ArchivoUtil.embedSignature(rutaArchivoEntrada, rutaArchivoSalida, encodedFirma);
 
-        System.out.println("Firma incrustada en: " + rutaArchivoFirmado);
-
-        // Verificar la firma incrustada
-        boolean esValida = FirmaUtil.verifySignature(rutaArchivoFirmado, original, encodedFirma, clavePublica);
-
-        if (esValida) {
-            System.out.println("La firma es válida.");
-        } else {
-            System.out.println("La firma NO es válida.");
-        }
+        System.out.println("Firma incrustada en: " + rutaArchivoSalida);
     }
 }
 
