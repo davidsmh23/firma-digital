@@ -1,3 +1,5 @@
+package util;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,11 +26,11 @@ public class ArchivoUtil {
                 writer.newLine();
             }
 
-            writer.write("-----BEGIN DIGITAL SIGNATURE-----");
+            writer.write("-----INICIO FIRMA DIGITAL-----");
             writer.newLine();
             writer.write(firma);
             writer.newLine();
-            writer.write("-----END DIGITAL SIGNATURE-----");
+            writer.write("-----FIN FIRMA DIGITAL-----");
         }
     }
 }
