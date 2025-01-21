@@ -1,4 +1,0 @@
-Esto es una prueba de firma digital
------INICIO FIRMA DIGITAL-----
-M6msCXQTOaOT27UpbNTrfMk67wpqQHnh9FGq/+vPlwkJCJPWtsCSHsSLtPimbHLSAd277sxO3VA8LVuTdn87CMiBKC+qYJ5HFILzp6UClu/QHgEco/4bwrQOWgUvAkNUgvxVQ1RAnSexldzzxn8qU08wWmyRGt+YZtK+UtiK+Caoc2VgC/7zLZsl6Kt89UGyMjNfz0RM8QTNdQywY4tmcOGqyx8WXB9/3tziDUqes5/wpynVv2GO9uIXtJ8qxftINv3yWQxdPxnQqCfCI8y3HDb3572UyYCol8ypyAm+3aL5e3qEf+JzCQFdOj7wKd/O2hc01Y9MkrBqnol8rTn9SA==
------FIN FIRMA DIGITAL-----

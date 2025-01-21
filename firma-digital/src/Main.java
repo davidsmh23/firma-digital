@@ -1,78 +1,125 @@
-import excepciones.ArchivoNoValido;
-import excepciones.DirectorioClavesNoValido;
 import util.ArchivoUtil;
 import util.FirmaUtil;
 
 import java.io.File;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Scanner;
 
+/**
+ * Clase principal que permite firmar archivos digitalmente y comprobar la validez de firmas digitales.
+ * Utiliza claves RSA generadas en el momento o almacenadas previamente.
+ * También soporta una biblioteca de claves públicas para verificar firmas.
+ */
 public class Main {
 
+    /**
+     * Método principal del programa.
+     * Permite al usuario firmar archivos digitalmente, verificar firmas y gestionar claves públicas y privadas.
+     *
+     * @param args Argumentos de línea de comandos (no se utilizan).
+     */
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in)) {
-            // Pedir al usuario la ruta del archivo a firmar
-            System.out.println("Introduce la ruta completa del archivo a firmar:");
-            String rutaArchivoEntrada = scanner.nextLine();
+            String rutaArchivoEntrada;
+            File archivoEntrada;
 
-            // Obtener el directorio del archivo de entrada
-            File archivoEntrada = new File(rutaArchivoEntrada);
-            if (!archivoEntrada.exists()) {
-                throw new ArchivoNoValido("El archivo especificado no existe.");
+            while (true) {
+                System.out.println("Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !end para salir):");
+                rutaArchivoEntrada = scanner.nextLine();
+
+                if (rutaArchivoEntrada.equalsIgnoreCase("!end")) {
+                    System.out.println("Programa terminado por el usuario.");
+                    return;
+                }
+
+                if (rutaArchivoEntrada.equalsIgnoreCase("!comprobar")) {
+                    System.out.println("Introduce la ruta completa del archivo a comprobar:");
+                    String rutaArchivoComprobar = scanner.nextLine();
+                    System.out.println("Introduce la ruta completa del archivo con la firma (introduce 1 si es firmador/archivo_firmado.txt):");
+                    String rutaArchivoFirma = scanner.nextLine();
+                    if (rutaArchivoFirma.equals("1")) {
+                        rutaArchivoFirma = "firmador/archivo_firmado.txt";
+                    }
+
+                    System.out.println("Introduce la ruta completa de la biblioteca de claves públicas (introduce 1 si es firmador/claves/biblioteca.txt):");
+                    String rutaBibliotecaClaves = scanner.nextLine();
+                    if (rutaBibliotecaClaves.equals("1")) {
+                        rutaBibliotecaClaves = "firmador/claves/biblioteca.txt";
+                    }
+
+                    // Leer los datos necesarios para la comprobación
+                    byte[] contenidoArchivo = ArchivoUtil.readFile(rutaArchivoComprobar);
+                    String firmaBase64 = ArchivoUtil.extraerFirmaDesdeArchivo(rutaArchivoFirma);
+                    byte[] firmaDigital = Base64.getDecoder().decode(firmaBase64);
+
+                    // Cargar todas las claves públicas desde la biblioteca
+                    ArrayList<PublicKey> clavesPublicas = ArchivoUtil.cargarClavesPublicas(rutaBibliotecaClaves);
+
+                    // Verificar la firma con todas las claves
+                    boolean firmaValida = false;
+                    for (PublicKey clavePublica : clavesPublicas) {
+                        if (FirmaUtil.verificarFirma(contenidoArchivo, firmaDigital, clavePublica)) {
+                            firmaValida = true;
+                            break;
+                        }
+                    }
+
+                    if (firmaValida) {
+                        System.out.println("La firma es válida con una de las claves públicas.");
+                    } else {
+                        System.out.println("La firma no es válida con ninguna de las claves públicas.");
+                    }
+                    continue;
+                }
+
+                // Validar la existencia del archivo de entrada
+                archivoEntrada = new File(rutaArchivoEntrada);
+                if (archivoEntrada.exists()) {
+                    break;
+                } else {
+                    System.err.println("El archivo especificado no existe. Por favor, inténtalo de nuevo.");
+                }
             }
 
-            // Rutas de salida
-            String directorioBase = archivoEntrada.getParent();
-            String rutaArchivoFirmado = directorioBase + "/archivo_firmado.txt";
-            String directorioClaves = directorioBase + "/claves";
+            // Configurar directorios y rutas para los archivos generados
+            String rutaArchivoFirmado = "firmador/archivo_firmado.txt";
+            String directorioClaves = "firmador/claves";
 
             // Crear el directorio para las claves si no existe
             File carpetaClaves = new File(directorioClaves);
-            System.out.println("Intentando crear el directorio: " + directorioClaves);
             if (!carpetaClaves.exists() && !carpetaClaves.mkdirs()) {
-                throw new DirectorioClavesNoValido("No se pudo crear el directorio para las claves en: " + directorioClaves);
+                throw new RuntimeException("No se pudo crear el directorio para las claves: " + directorioClaves);
             }
 
-            // Generar un par de claves (clave pública y privada)
+            // Generar un nuevo par de claves (pública y privada)
             KeyPairGenerator generadorLlave = KeyPairGenerator.getInstance("RSA");
             generadorLlave.initialize(2048);
             KeyPair clavePar = generadorLlave.generateKeyPair();
             PrivateKey clavePrivada = clavePar.getPrivate();
             PublicKey clavePublica = clavePar.getPublic();
 
-            // Guardar las claves en el directorio de claves
-            ArchivoUtil.guardarClave(directorioClaves + "/clavePrivada.key", clavePrivada.getEncoded());
-            ArchivoUtil.guardarClave(directorioClaves + "/clavePublica.key", clavePublica.getEncoded());
+            // Guardar las claves generadas en archivos
+            ArchivoUtil.guardarClave(directorioClaves + "/clavePrivada.txt", clavePrivada.getEncoded());
+            ArchivoUtil.guardarClave(directorioClaves + "/clavePublica.txt", clavePublica.getEncoded());
 
-            // Leer el contenido del archivo original
+            // Agregar la clave pública a la biblioteca de claves públicas
+            ArchivoUtil.agregarClavePublicaBiblioteca(directorioClaves + "/biblioteca.txt", clavePublica);
+
+            // Leer el contenido del archivo original y generar la firma digital
             byte[] contenidoOriginal = ArchivoUtil.readFile(rutaArchivoEntrada);
+            byte[] firmaDigital = FirmaUtil.generarFirma(contenidoOriginal, clavePrivada);
 
-            // Generar la firma digital
-            byte[] firmaDigital = FirmaUtil.generateSignature(contenidoOriginal, clavePrivada);
-
-            // Convertir la firma a Base64 para incrustarla en el archivo
+            // Codificar la firma en Base64 e incrustarla en el archivo firmado
             String encodedFirma = Base64.getEncoder().encodeToString(firmaDigital);
-
-            // Incrustar la firma en el archivo de salida
             ArchivoUtil.embedSignature(rutaArchivoEntrada, rutaArchivoFirmado, encodedFirma);
 
             System.out.println("Archivo firmado correctamente.");
             System.out.println("Archivo firmado guardado en: " + rutaArchivoFirmado);
             System.out.println("Claves guardadas en: " + directorioClaves);
-
-        }catch (ArchivoNoValido e) {
-            System.err.println(e.getMessage());
-        } catch (DirectorioClavesNoValido e) {
-            System.err.println(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
-
-
-
