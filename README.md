@@ -31,7 +31,7 @@ Para compilar y ejecutar este proyecto, necesitas tener **Java 11 o superior** i
 Este comando compilará todos los archivos `.java` en el directorio src y guardará los archivos `.class` compilados en el directorio bin.
 
 ### Crear el archivo JAR 📦
-Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR ejecutando el siguiente comando: `jar cfe firma-digital.jar Main -C bin .`
+Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR ejecutando el siguiente comando: `jar cfm proyecto_firma.jar MANIFEST.MF -C bin .`
 
 - `proyecto_firma.jar` es el nombre del archivo JAR que se generará.
 - `Main` es la clase principal que contiene el método `main` para ejecutar el programa.
@@ -39,7 +39,7 @@ Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR e
 
 ## Ejecutar el Proyecto 🚀
 
-1. **Ejecutar el programa**: Para ejecutar el archivo JAR, usa el siguiente comando: `java -jar proyecto_firma.jar`
+1. **Ejecutar el programa**: Para ejecutar el archivo JAR, usa el siguiente comando: `java -jar firma-digital.jar`
    
 2. **Firmar un archivo**:
    - Introduzca la ruta completa del archivo que desea firmar.
