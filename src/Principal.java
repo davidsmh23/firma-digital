@@ -2,7 +2,11 @@ import util.ArchivoUtil;
 import util.FirmaUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Scanner;
@@ -12,7 +16,7 @@ import java.util.Scanner;
  * Utiliza claves RSA generadas en el momento o almacenadas previamente.
  * También soporta una biblioteca de claves públicas para verificar firmas.
  */
-public class Main {
+public class Principal {
 
     /**
      * Método principal del programa.
@@ -26,10 +30,10 @@ public class Main {
             File archivoEntrada;
 
             while (true) {
-                System.out.println("Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !end para salir):");
+                System.out.println("Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !fin para salir):");
                 rutaArchivoEntrada = scanner.nextLine();
 
-                if (rutaArchivoEntrada.equalsIgnoreCase("!end")) {
+                if (rutaArchivoEntrada.equalsIgnoreCase("!fin")) {
                     System.out.println("Programa terminado por el usuario.");
                     return;
                 }
@@ -101,8 +105,8 @@ public class Main {
             PublicKey clavePublica = clavePar.getPublic();
 
             // Guardar las claves generadas en archivos
-            ArchivoUtil.guardarClave(directorioClaves + "/clavePrivada.txt", clavePrivada.getEncoded());
-            ArchivoUtil.guardarClave(directorioClaves + "/clavePublica.txt", clavePublica.getEncoded());
+            ArchivoUtil.guardarClave(directorioClaves + "/clavePrivada.key", clavePrivada.getEncoded());
+            ArchivoUtil.guardarClave(directorioClaves + "/clavePublica.key", clavePublica.getEncoded());
 
             // Agregar la clave pública a la biblioteca de claves públicas
             ArchivoUtil.agregarClavePublicaBiblioteca(directorioClaves + "/biblioteca.txt", clavePublica);
@@ -118,8 +122,12 @@ public class Main {
             System.out.println("Archivo firmado correctamente.");
             System.out.println("Archivo firmado guardado en: " + rutaArchivoFirmado);
             System.out.println("Claves guardadas en: " + directorioClaves);
+        } catch (NoSuchFileException | FileNotFoundException e) {
+            System.out.println("Error al cargar el archivo");
+        } catch (InvalidKeySpecException | IOException e){
+            System.out.println("Error al cargar las claves");
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Las claves no coinciden");
         }
     }
 }

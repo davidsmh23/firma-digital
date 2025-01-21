@@ -128,7 +128,7 @@ public class ArchivoUtil {
 
             while ((linea = reader.readLine()) != null) {
                 if (linea.equals("---")) {
-                    if (claveActual.length() > 0) {
+                    if (!claveActual.isEmpty()) {
                         // Convertir la clave Base64 a PublicKey
                         byte[] claveBytes = Base64.getDecoder().decode(claveActual.toString());
                         PublicKey clavePublica = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(claveBytes));
@@ -141,7 +141,7 @@ public class ArchivoUtil {
             }
 
             // Agregar la última clave si no está vacía
-            if (claveActual.length() > 0) {
+            if (!claveActual.isEmpty()) {
                 byte[] claveBytes = Base64.getDecoder().decode(claveActual.toString());
                 PublicKey clavePublica = KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(claveBytes));
                 clavesPublicas.add(clavePublica);

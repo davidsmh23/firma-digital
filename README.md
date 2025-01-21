@@ -22,6 +22,7 @@ Este proyecto proporciona una solución para firmar archivos digitalmente utiliz
 Para compilar y ejecutar este proyecto, necesitas tener **Java 11 o superior** instalado en tu máquina. Asegúrate de que el comando `javac` y `java` estén configurados correctamente en tu variable de entorno `PATH`.
 
 ### Compilar el Proyecto 📝
+> 💻 El proyecto `firma_digital.jar` ya está compilado y listo para ejecutarlo.
 
 1. Abre una terminal en el directorio raíz del proyecto.
 
@@ -31,15 +32,15 @@ Para compilar y ejecutar este proyecto, necesitas tener **Java 11 o superior** i
 Este comando compilará todos los archivos `.java` en el directorio src y guardará los archivos `.class` compilados en el directorio bin.
 
 ### Crear el archivo JAR 📦
-Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR ejecutando el siguiente comando: `jar cfm proyecto_firma.jar MANIFEST.MF -C bin .`
+Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR ejecutando el siguiente comando: `jar cfm firma_digital.jar MANIFEST.MF -C bin .`
 
-- `proyecto_firma.jar` es el nombre del archivo JAR que se generará.
+- `firma_digital.jar` es el nombre del archivo JAR que se generará.
 - `Main` es la clase principal que contiene el método `main` para ejecutar el programa.
 - `-C bin .` indica que los archivos compilados `.class` en el directorio `bin` deben ser incluidos en el archivo JAR.
 
 ## Ejecutar el Proyecto 🚀
 
-1. **Ejecutar el programa**: Para ejecutar el archivo JAR, usa el siguiente comando: `java -jar firma-digital.jar`
+1. **Ejecutar el programa**: Para ejecutar el archivo JAR, usa el siguiente comando: `java -jar firma_digital.jar`
    
 2. **Firmar un archivo**:
    - Introduzca la ruta completa del archivo que desea firmar.
@@ -55,7 +56,7 @@ Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR e
 ### Firmar un archivo
 
 ```
-Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !end para salir):
+Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !fin para salir):
 C:/documentos/archivo.txt
 Archivo firmado correctamente. ✅
 Archivo firmado guardado en: firmador/archivo_firmado.txt
@@ -73,6 +74,20 @@ Introduce la ruta completa de la biblioteca de claves públicas (introduce 1 si 
 firmador/claves/biblioteca.txt
 La firma es válida con una de las claves públicas. ✅
 ```
+## Dependencias del Proyecto 🌟
+
+Este proyecto utiliza las siguientes clases y paquetes para su funcionamiento:
+
+- **`java.io`** 📂: Manejo de archivos y directorios, lectura y escritura de datos.  
+- **`java.nio.file`** 🗂️: Operaciones con rutas y manejo de archivos inexistentes.  
+- **`java.security`** 🔐: Generación de claves RSA, firmas digitales y verificación de autenticidad.  
+- **`java.util`** 🛠️: Estructuras dinámicas, codificación en Base64 y entrada de usuario.  
+
+### Funcionalidad 💡
+- **Gestión de Archivos** 📁: Leer, escribir y validar archivos.  
+- **Criptografía** 🔑: Firmar y verificar archivos digitalmente.  
+- **Interacción** 🤝: Pedir rutas y mostrar resultados al usuario.    
+
 ## Estructura del Proyecto 📂
 
 El proyecto consta de las siguientes clases principales:
