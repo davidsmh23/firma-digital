@@ -1,7 +1,7 @@
 
 # Proyecto de Firma Digital de Archivos ✍️🔐
 
-Este proyecto proporciona una solución para firmar archivos digitalmente utilizando el algoritmo RSA y para verificar la validez de firmas digitales. Los usuarios pueden generar pares de claves públicas y privadas, firmar archivos con la clave privada y verificar la firma con claves públicas almacenadas en una biblioteca.
+Este proyecto proporciona una solución para firmar archivos digitalmente utilizando el algoritmo RSA y para verificar la validez de firmas digitales. Los usuarios pueden generar pares de claves públicas y privadas, firmar archivos con la clave privada y verificar la firma con claves públicas almacenadas en una biblioteca. **Solo funciona con extensión.txt**
 
 ## Funcionalidades 🎯
 
