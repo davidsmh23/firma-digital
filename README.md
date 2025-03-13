@@ -51,29 +51,11 @@ Una vez que el proyecto esté compilado, puedes empaquetarlo en un archivo JAR e
    - Introduzca la ruta del archivo a verificar, el archivo con la firma y la biblioteca de claves públicas.
    - El sistema verificará la firma utilizando las claves públicas almacenadas en la biblioteca y le indicará si la firma es válida.
 
-## Ejemplo de Ejecución 🎥
+## Instalar el programa usando Pacman (ArchLinux)🖥️
+1. **Instalar el paquete**: Para instalar el programa usando Pacman, ejecuta el siguiente comando:
+   `sudo pacman -U digitalsignaturev2-2.0-1-x86_64.pkg.tar.zst`
+2. **Ejecutar el programa**: Una vez instalado, puedes ejecutar el programa desde la terminal con el comando `firmador_digital`.
 
-### Firmar un archivo
-
-```
-Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !fin para salir):
-C:/documentos/archivo.txt
-Archivo firmado correctamente. ✅
-Archivo firmado guardado en: firmador/archivo_firmado.txt
-Claves guardadas en: firmador/claves
-```
-
-### Verificar una firma
-
-```
-Introduce la ruta completa del archivo a comprobar:
-archivo.txt
-Introduce la ruta completa del archivo con la firma (introduce 1 si es firmador/archivo_firmado.txt):
-firmador/archivo_firmado.txt
-Introduce la ruta completa de la biblioteca de claves públicas (introduce 1 si es firmador/claves/biblioteca.txt):
-firmador/claves/biblioteca.txt
-La firma es válida con una de las claves públicas. ✅
-```
 ## Dependencias del Proyecto 🌟
 
 Este proyecto utiliza las siguientes clases y paquetes para su funcionamiento:

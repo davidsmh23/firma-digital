@@ -1,0 +1,15 @@
+pkgname=digitalsignaturev1
+pkgver=1.0
+pkgrel=1
+arch=('x86_64')
+pkgdesc="Un programa en Java empaquetado para Arch Linux"
+license=('GPL')
+depends=('java-runtime')  # Java Runtime como dependencia
+source=('firma_digital-v1.0.jar' 'firmador_digital')
+sha256sums=('SKIP' 'SKIP')
+
+package() {
+    install -Dm644 "$srcdir/firma_digital-v1.0.jar" "$pkgdir/usr/share/miprograma/firma_digital-v1.0.jar"
+    install -Dm755 "$srcdir/firmador_digital" "$pkgdir/usr/bin/firmador_digital-v1.0"
+}
+
