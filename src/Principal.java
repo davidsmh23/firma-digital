@@ -1,6 +1,7 @@
 import util.ArchivoUtil;
 import util.FirmaUtil;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,15 +10,12 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Scanner;
-
 /**
  * Clase principal que permite firmar archivos digitalmente y comprobar la validez de firmas digitales.
  * Utiliza claves RSA generadas en el momento o almacenadas previamente.
  * También soporta una biblioteca de claves públicas para verificar firmas.
  */
 public class Principal {
-
     /**
      * Método principal del programa.
      * Permite al usuario firmar archivos digitalmente, verificar firmas y gestionar claves públicas y privadas.
@@ -25,43 +23,42 @@ public class Principal {
      * @param args Argumentos de línea de comandos (no se utilizan).
      */
     public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in)) {
-            String rutaArchivoEntrada;
-            File archivoEntrada;
-
+        try {
             while (true) {
-                System.out.println("Introduce la ruta completa del archivo a firmar (!comprobar para verificar la clave // !fin para salir):");
-                rutaArchivoEntrada = scanner.nextLine();
+                String[] opciones = {"Firmar archivo", "Verificar firma", "Salir"};
+                int opcionSeleccionada = JOptionPane.showOptionDialog(null,
+                        "Seleccione una opción:",
+                        "Firma Digital",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        opciones,
+                        opciones[0]);
 
-                if (rutaArchivoEntrada.equalsIgnoreCase("!fin")) {
-                    System.out.println("Programa terminado por el usuario.");
+                if (opcionSeleccionada == 2 || opcionSeleccionada == JOptionPane.CLOSED_OPTION) {
+                    JOptionPane.showMessageDialog(null, "Programa terminado.");
                     return;
                 }
 
-                if (rutaArchivoEntrada.equalsIgnoreCase("!comprobar")) {
-                    System.out.println("Introduce la ruta completa del archivo a comprobar:");
-                    String rutaArchivoComprobar = scanner.nextLine();
-                    System.out.println("Introduce la ruta completa del archivo con la firma (introduce 1 si es firmador/archivo_firmado.txt):");
-                    String rutaArchivoFirma = scanner.nextLine();
-                    if (rutaArchivoFirma.equals("1")) {
-                        rutaArchivoFirma = "firmador/archivo_firmado.txt";
-                    }
+                if (opcionSeleccionada == 1) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setDialogTitle("Seleccione el archivo a comprobar");
+                    if (fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) continue;
+                    String rutaArchivoComprobar = fileChooser.getSelectedFile().getAbsolutePath();
 
-                    System.out.println("Introduce la ruta completa de la biblioteca de claves públicas (introduce 1 si es firmador/claves/biblioteca.txt):");
-                    String rutaBibliotecaClaves = scanner.nextLine();
-                    if (rutaBibliotecaClaves.equals("1")) {
-                        rutaBibliotecaClaves = "firmador/claves/biblioteca.txt";
-                    }
+                    fileChooser.setDialogTitle("Seleccione el archivo con la firma");
+                    if (fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) continue;
+                    String rutaArchivoFirma = fileChooser.getSelectedFile().getAbsolutePath();
 
-                    // Leer los datos necesarios para la comprobación
+                    fileChooser.setDialogTitle("Seleccione la biblioteca de claves públicas");
+                    if (fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) continue;
+                    String rutaBibliotecaClaves = fileChooser.getSelectedFile().getAbsolutePath();
+
                     byte[] contenidoArchivo = ArchivoUtil.readFile(rutaArchivoComprobar);
                     String firmaBase64 = ArchivoUtil.extraerFirmaDesdeArchivo(rutaArchivoFirma);
                     byte[] firmaDigital = Base64.getDecoder().decode(firmaBase64);
-
-                    // Cargar todas las claves públicas desde la biblioteca
                     ArrayList<PublicKey> clavesPublicas = ArchivoUtil.cargarClavesPublicas(rutaBibliotecaClaves);
 
-                    // Verificar la firma con todas las claves
                     boolean firmaValida = false;
                     for (PublicKey clavePublica : clavesPublicas) {
                         if (FirmaUtil.verificarFirma(contenidoArchivo, firmaDigital, clavePublica)) {
@@ -70,64 +67,45 @@ public class Principal {
                         }
                     }
 
-                    if (firmaValida) {
-                        System.out.println("La firma es válida con una de las claves públicas.");
-                    } else {
-                        System.out.println("La firma no es válida con ninguna de las claves públicas.");
-                    }
+                    JOptionPane.showMessageDialog(null, firmaValida ? "La firma es válida." : "La firma no es válida.");
                     continue;
                 }
 
-                // Validar la existencia del archivo de entrada
-                archivoEntrada = new File(rutaArchivoEntrada);
-                if (archivoEntrada.exists()) {
-                    break;
-                } else {
-                    System.err.println("El archivo especificado no existe. Por favor, inténtalo de nuevo.");
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Seleccione el archivo a firmar");
+                if (fileChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION) continue;
+                String rutaArchivoEntrada = fileChooser.getSelectedFile().getAbsolutePath();
+
+                String rutaArchivoFirmado = "firmador/archivo_firmado.txt";
+                String directorioClaves = "firmador/claves";
+                File carpetaClaves = new File(directorioClaves);
+                if (!carpetaClaves.exists() && !carpetaClaves.mkdirs()) {
+                    throw new RuntimeException("No se pudo crear el directorio para las claves: " + directorioClaves);
                 }
+
+                KeyPairGenerator generadorLlave = KeyPairGenerator.getInstance("RSA");
+                generadorLlave.initialize(2048);
+                KeyPair clavePar = generadorLlave.generateKeyPair();
+                PrivateKey clavePrivada = clavePar.getPrivate();
+                PublicKey clavePublica = clavePar.getPublic();
+
+                ArchivoUtil.guardarClave(directorioClaves + "/clavePrivada.key", clavePrivada.getEncoded());
+                ArchivoUtil.guardarClave(directorioClaves + "/clavePublica.key", clavePublica.getEncoded());
+                ArchivoUtil.agregarClavePublicaBiblioteca(directorioClaves + "/biblioteca.txt", clavePublica);
+
+                byte[] contenidoOriginal = ArchivoUtil.readFile(rutaArchivoEntrada);
+                byte[] firmaDigital = FirmaUtil.generarFirma(contenidoOriginal, clavePrivada);
+                String encodedFirma = Base64.getEncoder().encodeToString(firmaDigital);
+                ArchivoUtil.embedSignature(rutaArchivoEntrada, rutaArchivoFirmado, encodedFirma);
+
+                JOptionPane.showMessageDialog(null, "Archivo firmado correctamente.\nGuardado en: " + rutaArchivoFirmado);
             }
-
-            // Configurar directorios y rutas para los archivos generados
-            String rutaArchivoFirmado = "firmador/archivo_firmado.txt";
-            String directorioClaves = "firmador/claves";
-
-            // Crear el directorio para las claves si no existe
-            File carpetaClaves = new File(directorioClaves);
-            if (!carpetaClaves.exists() && !carpetaClaves.mkdirs()) {
-                throw new RuntimeException("No se pudo crear el directorio para las claves: " + directorioClaves);
-            }
-
-            // Generar un nuevo par de claves (pública y privada)
-            KeyPairGenerator generadorLlave = KeyPairGenerator.getInstance("RSA");
-            generadorLlave.initialize(2048);
-            KeyPair clavePar = generadorLlave.generateKeyPair();
-            PrivateKey clavePrivada = clavePar.getPrivate();
-            PublicKey clavePublica = clavePar.getPublic();
-
-            // Guardar las claves generadas en archivos
-            ArchivoUtil.guardarClave(directorioClaves + "/clavePrivada.key", clavePrivada.getEncoded());
-            ArchivoUtil.guardarClave(directorioClaves + "/clavePublica.key", clavePublica.getEncoded());
-
-            // Agregar la clave pública a la biblioteca de claves públicas
-            ArchivoUtil.agregarClavePublicaBiblioteca(directorioClaves + "/biblioteca.txt", clavePublica);
-
-            // Leer el contenido del archivo original y generar la firma digital
-            byte[] contenidoOriginal = ArchivoUtil.readFile(rutaArchivoEntrada);
-            byte[] firmaDigital = FirmaUtil.generarFirma(contenidoOriginal, clavePrivada);
-
-            // Codificar la firma en Base64 e incrustarla en el archivo firmado
-            String encodedFirma = Base64.getEncoder().encodeToString(firmaDigital);
-            ArchivoUtil.embedSignature(rutaArchivoEntrada, rutaArchivoFirmado, encodedFirma);
-
-            System.out.println("Archivo firmado correctamente.");
-            System.out.println("Archivo firmado guardado en: " + rutaArchivoFirmado);
-            System.out.println("Claves guardadas en: " + directorioClaves);
         } catch (NoSuchFileException | FileNotFoundException e) {
-            System.out.println("Error al cargar el archivo");
-        } catch (InvalidKeySpecException | IOException e){
-            System.out.println("Error al cargar las claves");
+            JOptionPane.showMessageDialog(null, "Error al cargar el archivo.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (InvalidKeySpecException | IOException e) {
+            JOptionPane.showMessageDialog(null, "Error al cargar las claves.", "Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            System.out.println("Las claves no coinciden");
+            JOptionPane.showMessageDialog(null, "Las claves no coinciden.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
